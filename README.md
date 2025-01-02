@@ -33,7 +33,7 @@ pinv <- partial(S,c(1,4),c(2,3))
 cat(render_latex(pinv))
 ```
 
-The gnerated expressions can be rendered as LaTeX, or as R, c++ or Fortran code.
+The generated expressions can be rendered as LaTeX, or as R or c++ code.
 
 
 
