@@ -1,0 +1,17 @@
+Package: quoll
+Title: Qualitiative Network Analysis
+Version: 0.0.0.9000
+Authors@R: 
+    person("Simon", "Wotherspoon", , "Simon.Wotherspoon@aad.gov.au", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-6947-4445"))
+Description: Caclulate inverse and adjoint matrices by graph theoretic methods for 
+    qualitative network analyis.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Suggests: 
+    knitr,
+    rmarkdown,
+    DiagrammeR
+VignetteBuilder: knitr
