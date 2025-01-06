@@ -1498,7 +1498,7 @@ cpoly_latex <- function(cpoly,use.names=FALSE) {
             sprintf("%sx^{%d}",names(bs)[-(1:2)],seq.int(2,length(bs)-1))),
           collapse="+")
   }
-  poly <- sprintf("  p%d(x) &= %s\\\\",seq_along(code$cft),vapply(code$cft,polynomial,character(1L)))
+  poly <- sprintf("  p_{%d}(x) &= %s\\\\",seq_along(code$cft),vapply(code$cft,polynomial,character(1L)))
   
   ## Generate polynomial
   bnames <- names(code$cft)
