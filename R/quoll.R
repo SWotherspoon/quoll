@@ -1435,9 +1435,13 @@ cpoly_components <- function(cpoly,fmt) {
 
   render_coeffs <- function(coeffs,n0) {
     n <- length(coeffs)
-    sgn <- rev(rep(c("+","-"),length.out=n))
     bnames <- fmt$bsub(seq_len(n)+n0-1L)
-    cft <- vapply(seq_len(n),function(k) render_Cexpr(coeffs[[k]],fmt,sgn[k]),character(1L))
+    cft <- vapply(seq_len(n),function(k) {
+      cf <- render_Cexpr(coeffs[[k]],fmt)
+      if((n-k)%%2L!=0L)
+        cf <- if(length(coeffs[[k]])>1L) sprintf("-(%s)",cf) else sprintf("-%s",cf)
+      cf
+    },character(1L))
     setNames(fmt$bassign(bnames,cft),bnames)
   }
   
