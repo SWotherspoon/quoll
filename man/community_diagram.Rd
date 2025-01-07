@@ -8,7 +8,9 @@ community_diagram(
   S,
   rankdir = c("BT", "TB", "LR", "RL"),
   vertex.col = colorspec_vector(S),
-  edge.col = colorspec_matrix(S)
+  edge.col = colorspec_matrix(S),
+  hfrac = 0.99,
+  split.edges = FALSE
 )
 }
 \arguments{
@@ -19,6 +21,11 @@ community_diagram(
 \item{vertex.col}{a colorspec vector of vertex colors}
 
 \item{edge.col}{a colorspec matrix of edge colors}
+
+\item{hfrac}{the fraction of a bidirectional edge to highlight}
+
+\item{split.edges}{should bidirectional edges be drawn as two
+unidirectional edges?}
 }
 \value{
 a dot description of the graph

@@ -71,6 +71,9 @@ graph_diagram <- function(A,rankdir=c("BT","TB","LR","RL"),
 ##' @param rankdir the layout direction of the graph
 ##' @param vertex.col a colorspec vector of vertex colors
 ##' @param edge.col a colorspec matrix of edge colors
+##' @param hfrac the fraction of a bidirectional edge to highlight
+##' @param split.edges should bidirectional edges be drawn as two
+##'   unidirectional edges?
 ##' @return a dot description of the graph
 ##' @seealso [graph_diagram()] for undirected graphs
 ##' @seealso [community_diagram()] for signed community matrices
@@ -81,7 +84,8 @@ graph_diagram <- function(A,rankdir=c("BT","TB","LR","RL"),
 ##' @export
 digraph_diagram <- function(A,rankdir=c("BT","TB","LR","RL"),
                             vertex.col=colorspec_vector(A),
-                            edge.col=colorspec_matrix(A)) {
+                            edge.col=colorspec_matrix(A),
+                            hfrac=0.99,split.edges=FALSE) {
 
   rankdir <- match.arg(rankdir)
   nms <- if(is.null(rownames(A))) seq_len(nrow(A)) else rownames(A)
@@ -99,23 +103,31 @@ digraph_diagram <- function(A,rankdir=c("BT","TB","LR","RL"),
   pal <- attr(edge.col,"palette")
 
   ## Bidirectional edges
-  ij <- which((A!=0L & t(A)!=0L), arr.ind=TRUE)
-  ij <- ij[ij[,1] < ij[,2],,drop=FALSE]
-  if(nrow(ij)>0L) {
-    colb <- edge.col[ij]
-    colf <- edge.col[ij[,2:1,drop=FALSE]]
-    split <- ifelse(colb > 2 & colf > 2,"0.5","0.01")
-    col <- ifelse(colf==colb,pal[colf],ifelse(colf>colb,
-                    sprintf("%s:%s;%s",pal[colf],pal[colb],split),
-                    sprintf("%s;%s:%s",pal[colf],split,pal[colb])))
-    str <- paste(str,paste(
-      sprintf("  %d -> %d [dir=both,color='%s']",ij[,1],ij[,2],col),
-      collapse="\n"),
-      sep="\n")
+  if(!split.edges) {
+    ij <- which((A!=0L & t(A)!=0L), arr.ind=TRUE)
+    ij <- ij[ij[,1] < ij[,2],,drop=FALSE]
+    if(nrow(ij)>0L) {
+      colb <- edge.col[ij]
+      colf <- edge.col[ij[,2:1,drop=FALSE]]
+      split <- ifelse(colb > 2 & colf > 2,0.5,1-hfrac)
+      col <- ifelse(colf==colb,pal[colf],ifelse(colf>colb,
+                    sprintf("%s:%s;%0.2f",pal[colf],pal[colb],split),
+                    sprintf("%s;%0.2f:%s",pal[colf],split,pal[colb])))
+      str <- paste(str,paste(
+        sprintf("  %d -> %d [dir=both,color='%s']",ij[,1],ij[,2],col),
+        collapse="\n"),
+        sep="\n")
+    }
   }
 
-  ## Unidirectional (non loop) edges
-  ij <- which((A!=0L & t(A)==0L), arr.ind=TRUE)
+  if(!split.edges) {
+    ## Unidirectional (non loop) edges
+    ij <- which((A!=0L & t(A)==0L), arr.ind=TRUE)
+  } else {
+    ## Non loop edges
+    ij <- which(A!=0L, arr.ind=TRUE)
+    ij <- ij[ij[,1]!=ij[,2],,drop=FALSE]
+  }
   if(nrow(ij)>0L) {
     col <- pal[edge.col[ij]]
     str <- paste(str,paste(
@@ -149,11 +161,15 @@ digraph_diagram <- function(A,rankdir=c("BT","TB","LR","RL"),
 ##' @param rankdir the layout direction of the graph
 ##' @param vertex.col a colorspec vector of vertex colors
 ##' @param edge.col a colorspec matrix of edge colors
+##' @param hfrac the fraction of a bidirectional edge to highlight
+##' @param split.edges should bidirectional edges be drawn as two
+##'   unidirectional edges?
 ##' @return a dot description of the graph
 ##' @export
 community_diagram <- function(S,rankdir=c("BT","TB","LR","RL"),
                               vertex.col=colorspec_vector(S),
-                              edge.col=colorspec_matrix(S)) {
+                              edge.col=colorspec_matrix(S),
+                              hfrac=0.99,split.edges=FALSE) {
 
   rankdir <- match.arg(rankdir)
   nms <- if(is.null(rownames(S))) seq_len(nrow(S)) else rownames(S)
@@ -170,27 +186,35 @@ community_diagram <- function(S,rankdir=c("BT","TB","LR","RL"),
 
   pal <- attr(edge.col,"palette")
 
-  ## Bidirectional edges
-  ij <- which((S!=0L & t(S)!=0L), arr.ind=TRUE)
-  ij <- ij[ij[,1] > ij[,2],,drop=FALSE]
-  if(nrow(ij)>0L) {
-    colb <- edge.col[ij]
-    colf <- edge.col[ij[,2:1,drop=FALSE]]
-    split <- ifelse(colb > 2 & colf > 2,"0.5","0.01")
-    col <- ifelse(colf==colb,pal[colf],ifelse(colf>colb,
-                    sprintf("%s:%s;%s",pal[colf],pal[colb],split),
-                    sprintf("%s;%s:%s",pal[colf],split,pal[colb])))
-    str <- paste(str,paste(
-      sprintf("  %d -> %d [dir=both,arrowtail=%s,arrowhead=%s,color='%s']",ij[,2],ij[,1],
-              ifelse(S[ij[,2:1,drop=FALSE]]==1L,"vee","dot"),
-              ifelse(S[ij]==1L,"vee","dot"),
-              col),
-      collapse="\n"),
-      sep="\n")
+  if(!split.edges) {
+    ## Bidirectional edges
+    ij <- which((S!=0L & t(S)!=0L), arr.ind=TRUE)
+    ij <- ij[ij[,1] > ij[,2],,drop=FALSE]
+    if(nrow(ij)>0L) {
+      colb <- edge.col[ij]
+      colf <- edge.col[ij[,2:1,drop=FALSE]]
+      split <- ifelse(colb > 2 & colf > 2,0.5,1-hfrac)
+      col <- ifelse(colf==colb,pal[colf],ifelse(colf>colb,
+                    sprintf("%s:%s;%0.2f",pal[colf],pal[colb],split),
+                    sprintf("%s;%0.2f:%s",pal[colf],split,pal[colb])))
+      str <- paste(str,paste(
+        sprintf("  %d -> %d [dir=both,arrowtail=%s,arrowhead=%s,color='%s']",ij[,2],ij[,1],
+                ifelse(S[ij[,2:1,drop=FALSE]]==1L,"vee","dot"),
+                ifelse(S[ij]==1L,"vee","dot"),
+                col),
+        collapse="\n"),
+        sep="\n")
+    }
   }
 
-  ## Unidirectional (non loop) edges
-  ij <- which((S!=0L & t(S)==0L), arr.ind=TRUE)
+  if(!split.edges) {
+    ## Unidirectional (non loop) edges
+    ij <- which((S!=0L & t(S)==0L), arr.ind=TRUE)
+  } else {
+    ## Non loop edges
+    ij <- which(S!=0L, arr.ind=TRUE)
+    ij <- ij[ij[,1]!=ij[,2],,drop=FALSE]
+  }
   if(nrow(ij)>0L) {
     col <- pal[edge.col[ij]]
     str <- paste(str,paste(

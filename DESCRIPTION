@@ -1,6 +1,6 @@
 Package: quoll
 Title: Qualitiative Network Analysis
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: 
     person("Simon", "Wotherspoon", , "Simon.Wotherspoon@aad.gov.au", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-6947-4445"))

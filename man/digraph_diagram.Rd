@@ -8,7 +8,9 @@ digraph_diagram(
   A,
   rankdir = c("BT", "TB", "LR", "RL"),
   vertex.col = colorspec_vector(A),
-  edge.col = colorspec_matrix(A)
+  edge.col = colorspec_matrix(A),
+  hfrac = 0.99,
+  split.edges = FALSE
 )
 }
 \arguments{
@@ -19,6 +21,11 @@ digraph_diagram(
 \item{vertex.col}{a colorspec vector of vertex colors}
 
 \item{edge.col}{a colorspec matrix of edge colors}
+
+\item{hfrac}{the fraction of a bidirectional edge to highlight}
+
+\item{split.edges}{should bidirectional edges be drawn as two
+unidirectional edges?}
 }
 \value{
 a dot description of the graph
